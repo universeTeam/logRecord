@@ -12,7 +12,7 @@
 
     <groupId>cn.monitor4all</groupId>
     <artifactId>log-record-starter</artifactId>
-    <version>1.1.4</version>
+    <version>v.hotwheels.SNAPSHOT</version>
 
     <dependencies>
 
@@ -91,50 +91,46 @@
             <distribution>actable</distribution>
         </license>
     </licenses>
-
-    <developers>
-        <developer>
-            <name>Zhendong Yang</name>
-            <email>yangzd1993@foxmail.com</email>
-            <organization>monitor4all</organization>
-        </developer>
-    </developers>
-
-    <scm>
-        <tag>master</tag>
-        <url>git@github.com:qqxx6661/logRecord.git</url>
-        <connection>git@github.com:qqxx6661/logRecord.git</connection>
-        <developerConnection>git@github.com:qqxx6661/logRecord.git</developerConnection>
-    </scm>
-
-    <distributionManagement>
-        <!--  申明打包到Github私有Maven仓库  -->
-        <repository>
-            <id>github</id>
-            <name>GitHub OWNER Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/qqxx6661/logRecord</url>
-        </repository>
-
-        <!--  申明打包到Maven公有仓库  -->
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
+    <profiles>
+        <profile>
+            <id>test</id>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>snapshots</id>
+                    <url>http://192.168.40.196:8081/nexus/content/repositories/snapshots/</url>
+                    <name>snapshots repository</name>
+                </snapshotRepository>
+            </distributionManagement>
+            <!-- 是否默认 true表示默认-->
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>snapshots</id>
+                    <url>http://10.0.2.84:8081/nexus/content/repositories/snapshots/</url>
+                    <name>snapshots repository</name>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.sonatype.plugins</groupId>-->
+<!--                <artifactId>nexus-staging-maven-plugin</artifactId>-->
+<!--                <version>1.6.7</version>-->
+<!--                <extensions>true</extensions>-->
+<!--                <configuration>-->
+<!--                    <serverId>ossrh</serverId>-->
+<!--                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>-->
+<!--                    <autoReleaseAfterClose>true</autoReleaseAfterClose>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -181,5 +177,6 @@
 <!--            </plugin>-->
         </plugins>
     </build>
+
 
 </project>

@@ -1,6 +1,6 @@
 package cn.monitor4all.logRecord.service.impl;
 
-import cn.monitor4all.logRecord.bean.LogDTO;
+import cn.monitor4all.logRecord.bean.BurialPointDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.constants.LogConstants;
 import cn.monitor4all.logRecord.service.LogService;
@@ -28,14 +28,14 @@ public class RocketMqLogServiceImpl implements LogService {
     private DefaultMQProducer defaultMqProducer;
 
     @Override
-    public boolean createLog(LogDTO logDTO) {
+    public boolean createLog(BurialPointDTO burialPointDTO) {
         try {
-            Message msg = new Message(properties.getRocketMqProperties().getTopic(), properties.getRocketMqProperties().getTag(), (JSON.toJSONString(logDTO)).getBytes(RemotingHelper.DEFAULT_CHARSET));
+            Message msg = new Message(properties.getRocketMqProperties().getTopic(), properties.getRocketMqProperties().getTag(), (JSON.toJSONString(burialPointDTO)).getBytes(RemotingHelper.DEFAULT_CHARSET));
             SendResult sendResult = defaultMqProducer.send(msg);
-            log.info("LogRecord RocketMq send LogDTO [{}] sendResult: [{}]", logDTO, sendResult);
+            log.info("LogRecord RocketMq send BurialPointDTO [{}] sendResult: [{}]", burialPointDTO, sendResult);
             return true;
         } catch (Exception e) {
-            log.error("LogRecord RocketMq send LogDTO error", e);
+            log.error("LogRecord RocketMq send BurialPointDTO error", e);
             return false;
         }
     }

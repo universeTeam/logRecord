@@ -1,6 +1,6 @@
 package cn.monitor4all.logRecord.service.impl;
 
-import cn.monitor4all.logRecord.bean.LogDTO;
+import cn.monitor4all.logRecord.bean.BurialPointDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.configuration.StreamSenderConfiguration;
 import cn.monitor4all.logRecord.constants.LogConstants;
@@ -22,7 +22,7 @@ public class StreamLogServiceImpl implements LogService {
     private StreamSenderConfiguration.LogRecordChannel channel;
 
     @Override
-    public boolean createLog(LogDTO logDTO) {
-        return channel.messageLoggingQueueInput().send(MessageBuilder.withPayload(logDTO).build());
+    public boolean createLog(BurialPointDTO burialPointDTO) {
+        return channel.messageLoggingQueueInput().send(MessageBuilder.withPayload(burialPointDTO).build());
     }
 }

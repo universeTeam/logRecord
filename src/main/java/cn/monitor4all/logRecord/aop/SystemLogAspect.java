@@ -1,7 +1,10 @@
 package cn.monitor4all.logRecord.aop;
 
 import cn.monitor4all.logRecord.annotation.OperationLog;
-import cn.monitor4all.logRecord.bean.LogDTO;
+import cn.monitor4all.logRecord.bean.BurialPointDTO;
+import cn.monitor4all.logRecord.bean.ExceptionDTO;
+import cn.monitor4all.logRecord.constants.LogConstants;
+import cn.monitor4all.logRecord.context.GlobalContext;
 import cn.monitor4all.logRecord.context.LogRecordContext;
 import cn.monitor4all.logRecord.function.CustomFunctionRegistrar;
 import cn.monitor4all.logRecord.service.IOperationLogGetService;
@@ -12,6 +15,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -54,21 +58,21 @@ public class SystemLogAspect {
     @Around("@annotation(cn.monitor4all.logRecord.annotation.OperationLog) || @annotation(cn.monitor4all.logRecord.annotation.OperationLogs)")
     public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
         Object result;
-        List<LogDTO> logDTOList = new ArrayList<>();
+        List<BurialPointDTO> burialPointDTOList = new ArrayList<>();
         Method method = getMethod(pjp);
         OperationLog[] annotations = method.getAnnotationsByType(OperationLog.class);
 
         // 将前置和后置执行的注解分开处理并保证最终写入顺序
-        Map<OperationLog, LogDTO> logDtoMap = new LinkedHashMap<>();
+        Map<OperationLog, BurialPointDTO> logDtoMap = new LinkedHashMap<>();
 
         StopWatch stopWatch = new StopWatch();
         try {
             // 方法执行前
             for (OperationLog annotation : annotations) {
                 if (annotation.executeBeforeFunc()) {
-                    LogDTO logDTO = resolveExpress(annotation, pjp);
-                    if (logDTO != null) {
-                        logDtoMap.put(annotation, logDTO);
+                    BurialPointDTO burialPointDTO = resolveExpress(annotation, pjp);
+                    if (burialPointDTO != null) {
+                        logDtoMap.put(annotation, burialPointDTO);
                     }
                 }
             }
@@ -78,14 +82,14 @@ public class SystemLogAspect {
             // 方法执行后
             for (OperationLog annotation : annotations) {
                 if (!annotation.executeBeforeFunc()) {
-                    LogDTO logDTO = resolveExpress(annotation, pjp);
-                    if (logDTO != null) {
-                        logDtoMap.put(annotation, logDTO);
+                    BurialPointDTO burialPointDTO = resolveExpress(annotation, pjp);
+                    if (burialPointDTO != null) {
+                        logDtoMap.put(annotation, burialPointDTO);
                     }
                 }
             }
             // 写入成功执行结果
-            logDTOList = new ArrayList<>(logDtoMap.values());
+            burialPointDTOList = new ArrayList<>(logDtoMap.values());
             logDtoMap.forEach((annotation, logDTO) -> {
                 logDTO.setSuccess(true);
                 if (annotation.recordReturnValue()) {
@@ -101,8 +105,8 @@ public class SystemLogAspect {
                 }
             }
             // 写入异常执行结果
-            logDTOList = new ArrayList<>(logDtoMap.values());
-            logDTOList.forEach(logDTO -> {
+            burialPointDTOList = new ArrayList<>(logDtoMap.values());
+            burialPointDTOList.forEach(logDTO -> {
                 logDTO.setSuccess(false);
                 logDTO.setException(throwable.getMessage());
             });
@@ -111,7 +115,7 @@ public class SystemLogAspect {
             // 清除Context：每次方法执行一次
             LogRecordContext.clearContext();
             // 提交logDTO至主线程或线程池
-            Consumer<LogDTO> createLogFunction = logDTO -> {
+            Consumer<BurialPointDTO> createLogFunction = logDTO -> {
                 try {
                     // 记录执行时间
                     logDTO.setExecutionTime(stopWatch.getTotalTimeMillis());
@@ -128,16 +132,16 @@ public class SystemLogAspect {
                 }
             };
             if (logRecordThreadPool != null) {
-                logDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> createLogFunction.accept(logDTO)));
+                burialPointDTOList.forEach(logDTO -> logRecordThreadPool.getLogRecordPoolExecutor().submit(() -> createLogFunction.accept(logDTO)));
             } else {
-                logDTOList.forEach(createLogFunction);
+                burialPointDTOList.forEach(createLogFunction);
             }
         }
         return result;
     }
 
-    private LogDTO resolveExpress(OperationLog annotation, JoinPoint joinPoint) {
-        LogDTO logDTO = null;
+    private BurialPointDTO resolveExpress(OperationLog annotation, JoinPoint joinPoint) {
+        BurialPointDTO burialPointDTO = null;
         String bizIdSpel = annotation.bizId();
         String msgSpel = annotation.msg();
         String extraSpel = annotation.extra();
@@ -198,23 +202,49 @@ public class SystemLogAspect {
                 operatorId = operatorIdObj instanceof String ? (String) operatorIdObj : JSON.toJSONString(operatorIdObj, SerializerFeature.WriteMapNullValue);
             }
 
-            logDTO = new LogDTO();
-            logDTO.setLogId(UUID.randomUUID().toString());
-            logDTO.setBizId(bizId);
-            logDTO.setBizType(annotation.bizType());
-            logDTO.setTag(annotation.tag());
-            logDTO.setOperateDate(new Date());
-            logDTO.setMsg(msg);
-            logDTO.setExtra(extra);
-            logDTO.setOperatorId(operatorId);
-            logDTO.setDiffDTOList(LogRecordContext.getDiffDTOList());
+            burialPointDTO = new BurialPointDTO();
+            burialPointDTO.setMachine(GlobalContext.machineDTO);
+            burialPointDTO.setLogId(UUID.randomUUID().toString());
+            burialPointDTO.setBizId(bizId);
+            burialPointDTO.setBizType(annotation.bizType());
+            burialPointDTO.setTag(annotation.tag());
+            burialPointDTO.setOperateDate(new Date());
+            burialPointDTO.setMsg(msg);
+            burialPointDTO.setExtra(extra);
+            burialPointDTO.setOperatorId(operatorId);
+            burialPointDTO.setDiffDTOList(LogRecordContext.getDiffDTOList());
+
+            // 处理 Reset
+            final Map<String, Object> extendContext = LogRecordContext.getExtendContext();
+            final Throwable throwable = (Throwable) extendContext.get(LogConstants.Public.RESET_KEY);
+            if (throwable != null) {
+                burialPointDTO.setUsual(false);
+                final String[] stackFrames = ExceptionUtils.getStackFrames(throwable);
+                burialPointDTO.setException(throwable.getMessage()+"");
+                final ExceptionDTO exceptionDTO = burialPointDTO.getExceptionDTO();
+                exceptionDTO.setDescribe(throwable.getMessage());
+                exceptionDTO.setClassName(throwable.getClass().getName());
+                exceptionDTO.setRootFrame(stackFrames[1]);
+                if (stackFrames.length > 2) {
+                    exceptionDTO.setSubFrame(stackFrames[2]);
+                }
+            }
+            extendContext.remove(LogConstants.Public.RESET_KEY);
+
+            // 处理结构化扩展信息
+            for (Map.Entry<String, Object> entry : extendContext.entrySet()) {
+                final Map<String, Object> cusStructExtra = burialPointDTO.getCusStructExtra();
+                cusStructExtra.put(entry.getKey(),entry.getValue());
+            }
+
+
         } catch (Exception e) {
             log.error("OperationLogAspect resolveExpress error", e);
         } finally {
             // 清除Diff实体列表：每次注解执行一次
             LogRecordContext.clearDiffDTOList();
         }
-        return logDTO;
+        return burialPointDTO;
     }
 
     private Method getMethod(JoinPoint joinPoint) {

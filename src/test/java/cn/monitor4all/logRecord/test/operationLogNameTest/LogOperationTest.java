@@ -1,6 +1,6 @@
 package cn.monitor4all.logRecord.test.operationLogNameTest;
 
-import cn.monitor4all.logRecord.bean.LogDTO;
+import cn.monitor4all.logRecord.bean.BurialPointDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordAutoConfiguration;
 import cn.monitor4all.logRecord.service.IOperationLogGetService;
 import cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser;
@@ -55,89 +55,89 @@ public class LogOperationTest {
     public static class CustomFuncTestOperationLogGetService implements IOperationLogGetService {
 
         @Override
-        public void createLog(LogDTO logDTO) {
-            log.info("logDTO: [{}]", JSON.toJSONString(logDTO));
+        public void createLog(BurialPointDTO burialPointDTO) {
+            log.info("burialPointDTO: [{}]", JSON.toJSONString(burialPointDTO));
 
-            if ("testBizIdWithSpEL".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getBizId(), "1");
+            if ("testBizIdWithSpEL".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getBizId(), "1");
             }
-            if ("testBizIdWithRawString".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getBizId(), "2");
-            }
-
-            if ("testReturnStr".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getReturnStr(), "\"returnStr\"");
+            if ("testBizIdWithRawString".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getBizId(), "2");
             }
 
-            if ("testRecordReturnValueTrue".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getReturnStr(), "\"returnStr\"");
+            if ("testReturnStr".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getReturnStr(), "\"returnStr\"");
             }
 
-            if ("testRecordReturnValueFalse".equals(logDTO.getBizType())) {
-                Assertions.assertNull(logDTO.getReturnStr());
+            if ("testRecordReturnValueTrue".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getReturnStr(), "\"returnStr\"");
             }
 
-            if ("testReturnObject".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getReturnStr(), "{\"id\":1,\"name\":\"张三\"}");
+            if ("testRecordReturnValueFalse".equals(burialPointDTO.getBizType())) {
+                Assertions.assertNull(burialPointDTO.getReturnStr());
             }
 
-            if ("testException".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getException(), "testException");
+            if ("testReturnObject".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getReturnStr(), "{\"id\":1,\"name\":\"张三\"}");
             }
 
-            if ("testMsgAndExtraWithSpEL".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getMsg(), "将旧值张三更改为新值李四");
-                Assertions.assertEquals(logDTO.getExtra(), "将旧值张三更改为新值李四");
-            }
-            if ("testMsgAndExtraWithRawString".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getMsg(), "str");
-                Assertions.assertEquals(logDTO.getExtra(), "str");
-            }
-            if ("testMsgAndExtraWithObject".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getMsg(), "{\"id\":1,\"name\":\"name\"}");
-                Assertions.assertEquals(logDTO.getExtra(), "{\"id\":1,\"name\":\"name\"}");
+            if ("testException".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getException(), "testException");
             }
 
-            if ("testMethodWithCustomName".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getBizId(), "testMethodWithCustomName");
+            if ("testMsgAndExtraWithSpEL".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getMsg(), "将旧值张三更改为新值李四");
+                Assertions.assertEquals(burialPointDTO.getExtra(), "将旧值张三更改为新值李四");
             }
-            if ("testMethodWithoutCustomName".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getBizId(), "testMethodWithoutCustomName");
+            if ("testMsgAndExtraWithRawString".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getMsg(), "str");
+                Assertions.assertEquals(burialPointDTO.getExtra(), "str");
             }
-
-            if ("testOperatorIdWithSpEL".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getOperatorId(), "001");
-            }
-            if ("testOperatorIdWithCustomOperatorIdGetService".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getOperatorId(), "操作人");
-            }
-
-            if ("testExecuteBeforeFunc1".equals(logDTO.getBizType())) {
-                Assertions.assertNull(logDTO.getBizId());
-            }
-            if ("testExecuteAfterFunc".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getBizId(), "valueInBiz");
-            }
-            if ("testExecuteBeforeFunc2".equals(logDTO.getBizType())) {
-                Assertions.assertNull(logDTO.getBizId());
+            if ("testMsgAndExtraWithObject".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getMsg(), "{\"id\":1,\"name\":\"name\"}");
+                Assertions.assertEquals(burialPointDTO.getExtra(), "{\"id\":1,\"name\":\"name\"}");
             }
 
-            if ("testObjectDiff".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】");
-                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser");
-                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息实体");
-                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
-                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
-                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewFieldAlias(), "用户工号");
-                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 1);
-                Assertions.assertEquals(logDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewValue(), 2);
+            if ("testMethodWithCustomName".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getBizId(), "testMethodWithCustomName");
+            }
+            if ("testMethodWithoutCustomName".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getBizId(), "testMethodWithoutCustomName");
             }
 
-            if ("testCondition1".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getBizId(), "1");
+            if ("testOperatorIdWithSpEL".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getOperatorId(), "001");
             }
-            if ("testCondition2".equals(logDTO.getBizType())) {
-                Assertions.assertEquals(logDTO.getBizId(), "2");
+            if ("testOperatorIdWithCustomOperatorIdGetService".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getOperatorId(), "操作人");
+            }
+
+            if ("testExecuteBeforeFunc1".equals(burialPointDTO.getBizType())) {
+                Assertions.assertNull(burialPointDTO.getBizId());
+            }
+            if ("testExecuteAfterFunc".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getBizId(), "valueInBiz");
+            }
+            if ("testExecuteBeforeFunc2".equals(burialPointDTO.getBizType())) {
+                Assertions.assertNull(burialPointDTO.getBizId());
+            }
+
+            if ("testObjectDiff".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getMsg(), "【用户工号】从【1】变成了【2】 【name】从【张三】变成了【李四】");
+                Assertions.assertEquals(burialPointDTO.getDiffDTOList().get(0).getOldClassName(), "cn.monitor4all.logRecord.test.operationLogNameTest.bean.TestUser");
+                Assertions.assertEquals(burialPointDTO.getDiffDTOList().get(0).getOldClassAlias(), "用户信息实体");
+                Assertions.assertEquals(burialPointDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getFieldName(), "id");
+                Assertions.assertEquals(burialPointDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldFieldAlias(), "用户工号");
+                Assertions.assertEquals(burialPointDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewFieldAlias(), "用户工号");
+                Assertions.assertEquals(burialPointDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getOldValue(), 1);
+                Assertions.assertEquals(burialPointDTO.getDiffDTOList().get(0).getDiffFieldDTOList().get(0).getNewValue(), 2);
+            }
+
+            if ("testCondition1".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getBizId(), "1");
+            }
+            if ("testCondition2".equals(burialPointDTO.getBizType())) {
+                Assertions.assertEquals(burialPointDTO.getBizId(), "2");
             }
         }
     }

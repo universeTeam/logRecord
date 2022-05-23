@@ -5,14 +5,26 @@ import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
-public class LogDTO {
-
+public class BurialPointDTO {
 	/**
 	 * 日志唯一ID
 	 */
 	private String logId;
+	/**
+	 * 日志追踪ID
+	 */
+	private String traceId;
+	/**
+	 * 系统ID
+	 */
+	private String sysId;
+	/**
+	 * 机器信息
+	 */
+	private MachineDTO machine = new MachineDTO();
 	/**
 	 * 业务ID
 	 * 支持SpEL
@@ -27,13 +39,21 @@ public class LogDTO {
 	 */
 	private String exception;
 	/**
+	 * 异常详情
+	 */
+	private ExceptionDTO exceptionDTO = new ExceptionDTO();
+	/**
 	 * 日志操作时间
 	 */
 	private Date operateDate;
 	/**
-	 * 方法是否成功
+	 * 方法是否执行成功
 	 */
-	private Boolean success;
+	private Boolean success = true;
+	/**
+	 * 业务正常执行成功
+	 */
+	private Boolean usual = true;
 	/**
 	 * 日志内容
 	 * 支持SpEL
@@ -56,6 +76,10 @@ public class LogDTO {
 	 * 支持SpEL
 	 */
 	private String extra;
+	/**
+	 * 自定义结构体额外信息
+	 */
+	private Map<String,Object> cusStructExtra;
 	/**
 	 * 操作人ID
 	 */

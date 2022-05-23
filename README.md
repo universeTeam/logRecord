@@ -245,8 +245,8 @@ https://search.maven.org/artifact/cn.monitor4all/log-record-starter
 ```java
 public class CustomFuncTestOperationLogGetService implements IOperationLogGetService {
     @Override
-    public void createLog(LogDTO logDTO) {
-        log.info("logDTO: [{}]", JSON.toJSONString(logDTO));
+    public void createLog(LogDTO burialPointDTO) {
+        log.info("burialPointDTO: [{}]", JSON.toJSONString(burialPointDTO));
     }
 }
 ```

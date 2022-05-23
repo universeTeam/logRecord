@@ -1,6 +1,6 @@
 package cn.monitor4all.logRecord.service.impl;
 
-import cn.monitor4all.logRecord.bean.LogDTO;
+import cn.monitor4all.logRecord.bean.BurialPointDTO;
 import cn.monitor4all.logRecord.configuration.LogRecordProperties;
 import cn.monitor4all.logRecord.constants.LogConstants;
 import cn.monitor4all.logRecord.service.LogService;
@@ -25,9 +25,9 @@ public class RabbitMqLogServiceImpl implements LogService {
     private LogRecordProperties properties;
 
     @Override
-    public boolean createLog(LogDTO logDTO) {
-        log.info("LogRecord RabbitMq ready to send routingKey [{}] LogDTO [{}]", properties.getRabbitMqProperties().getRoutingKey(), logDTO);
-        rubeExchangeTemplate.convertAndSend(properties.getRabbitMqProperties().getRoutingKey(), JSON.toJSONString(logDTO));
+    public boolean createLog(BurialPointDTO burialPointDTO) {
+        log.info("LogRecord RabbitMq ready to send routingKey [{}] BurialPointDTO [{}]", properties.getRabbitMqProperties().getRoutingKey(), burialPointDTO);
+        rubeExchangeTemplate.convertAndSend(properties.getRabbitMqProperties().getRoutingKey(), JSON.toJSONString(burialPointDTO));
         return true;
     }
 }
